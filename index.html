@@ -1,368 +1,524 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
+
 <head>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>내 포트폴리오</title>
+    <title>Portfolio | Sujin Lee | iOS Engineer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Mermaid for Architecture Diagram -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f1f5f9;
+            scroll-behavior: smooth;
         }
 
-        /* 헤더 */
-        header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 100px 20px;
-            text-align: center;
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
         }
 
-        header h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
+        .glass-card:hover {
+            border-color: #6366f1;
+            box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.3);
         }
 
-        header p {
-            font-size: 1.3em;
-            opacity: 0.9;
+        .gradient-text {
+            background: linear-gradient(90deg, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        /* 네비게이션 */
-        nav {
-            background: #333;
-            padding: 15px 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+        .nav-link {
+            transition: color 0.3s ease;
         }
 
-        nav ul {
-            list-style: none;
-            display: flex;
-            justify-content: center;
-            gap: 30px;
+        .nav-link:hover {
+            color: #818cf8;
         }
 
-        nav a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-
-        nav a:hover {
-            color: #667eea;
-        }
-
-        /* 섹션 공통 스타일 */
-        section {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 60px 20px;
-        }
-
-        section h2 {
-            font-size: 2.5em;
-            margin-bottom: 30px;
-            text-align: center;
-            color: #667eea;
-        }
-
-        /* 소개 섹션 */
-        #about {
-            background: #f9f9f9;
-        }
-
-        .about-content {
-            display: flex;
-            gap: 40px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .profile-image {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: #ddd;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 4em;
-            color: #667eea;
-        }
-
-        .about-text {
-            flex: 1;
-            min-width: 300px;
-        }
-
-        /* 스킬 섹션 */
-        .skills-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-
-        .skill-card {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            text-align: center;
-            transition: transform 0.3s;
-        }
-
-        .skill-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .skill-card h3 {
-            color: #667eea;
-            margin-bottom: 10px;
-        }
-
-        /* 프로젝트 섹션 */
-        #projects {
-            background: #f9f9f9;
-        }
-
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 30px;
-        }
-
-        .project-card {
-            background: white;
-            border-radius: 10px;
+        /* Accordion transition logic */
+        .accordion-content {
+            max-height: 0;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
+            transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+            opacity: 0;
         }
 
-        .project-card:hover {
-            transform: translateY(-5px);
+        .accordion-item.active .accordion-content {
+            max-height: 3000px;
+            opacity: 1;
+            margin-top: 1.5rem;
         }
 
-        .project-image {
+        .chevron-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .accordion-item.active .chevron-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Mermaid Styling */
+        .mermaid {
+            background: transparent !important;
+            display: flex;
+            justify-content: center;
+            min-height: 400px;
             width: 100%;
-            height: 200px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 3em;
         }
 
-        .project-info {
-            padding: 20px;
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
 
-        .project-info h3 {
-            color: #333;
-            margin-bottom: 10px;
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
         }
 
-        .project-info p {
-            color: #666;
-            margin-bottom: 15px;
-        }
-
-        .project-link {
-            display: inline-block;
-            padding: 8px 20px;
-            background: #667eea;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background 0.3s;
-        }
-
-        .project-link:hover {
-            background: #764ba2;
-        }
-
-        /* 연락처 섹션 */
-        .contact-info {
-            text-align: center;
-            margin-top: 30px;
-        }
-
-        .contact-links {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-
-        .contact-btn {
-            padding: 12px 30px;
-            background: #667eea;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background 0.3s;
-        }
-
-        .contact-btn:hover {
-            background: #764ba2;
-        }
-
-        /* 푸터 */
-        footer {
-            background: #333;
-            color: white;
-            text-align: center;
-            padding: 30px 20px;
-        }
-
-        /* 반응형 */
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 2em;
-            }
-
-            nav ul {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .about-content {
-                flex-direction: column;
-                text-align: center;
-            }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 10px;
         }
     </style>
 </head>
-<body>
-    <!-- 헤더 -->
-    <header>
-        <h1>홍길동</h1>
-        <p>웹 개발자 | 프론트엔드 개발자</p>
-    </header>
 
-    <!-- 네비게이션 -->
-    <nav>
-        <ul>
-            <li><a href="#about">소개</a></li>
-            <li><a href="#skills">스킬</a></li>
-            <li><a href="#projects">프로젝트</a></li>
-            <li><a href="#contact">연락처</a></li>
-        </ul>
+<body>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 px-6 py-4 flex justify-between items-center glass-card border-none bg-opacity-90">
+        <div class="text-2xl font-bold gradient-text">SH.</div>
+        <div class="hidden md:flex space-x-8 text-sm font-medium">
+            <a href="#home" class="nav-link">Home</a>
+            <a href="#experience" class="nav-link">Experience</a>
+            <a href="#skills" class="nav-link">Skills</a>
+        </div>
+        <div class="flex items-center space-x-4">
+            <a href="https://github.com/svng-zu" target="_blank" class="hover:text-indigo-400 transition-colors">
+                <i data-lucide="github"></i>
+            </a>
+            <a href="https://www.linkedin.com/in/alex-hwang1998/" target="_blank"
+                class="hover:text-indigo-400 transition-colors">
+                <i data-lucide="linkedin"></i>
+            </a>
+            <!-- <a href="https://github.com/svng-zu/MyPortFolio/blob/main/Resume.pdf" target="_blank" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-full text-xs font-bold transition-all inline-block">
+                Resume
+            </a> -->
+            <button onclick="toggleModal()"
+                class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-full text-xs font-bold transition-all">
+                Resume
+            </button>
+        </div>
     </nav>
 
-    <!-- 소개 섹션 -->
-    <section id="about">
-        <h2>About Me</h2>
-        <div class="about-content">
-            <div class="profile-image">👨‍💻</div>
-            <div class="about-text">
-                <h3>안녕하세요!</h3>
-                <p>저는 웹 개발에 열정을 가진 개발자입니다. 사용자 친화적인 웹 애플리케이션을 만드는 것을 좋아하며, 항상 새로운 기술을 배우고 성장하는 것을 즐깁니다.</p>
-                <p>깔끔한 코드와 아름다운 디자인을 추구하며, 문제 해결을 통해 가치를 창출하는 것에 보람을 느낍니다.</p>
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen flex flex-col justify-center items-center pt-20 px-6 text-center">
+        <div
+            class="inline-block px-4 py-1.5 mb-6 text-xs font-semibold tracking-widest text-indigo-400 uppercase bg-indigo-500/10 rounded-full">
+            Building Scalable iOS Applications
+        </div>
+
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
+            Sujin <span class="gradient-text">LEE</span>
+        </h1>
+
+        <p class="max-w-2xl text-slate-400 text-lg md:text-xl mb-10">
+            <b>iOS Engineer</b> focused on building reliable, user-centric mobile applications.<br
+                class="hidden md:block">
+            Experienced in <b>Swift</b>, <b>modern iOS architectures</b>, and <b>real-time data-driven features</b>.
+        </p>
+
+        <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+            <a href="#experience"
+                class="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-bold transition-all flex items-center justify-center">
+                View Experience <i data-lucide="arrow-right" class="ml-2 w-4 h-4"></i>
+            </a>
+            <a href="#skills"
+                class="px-8 py-4 glass-card rounded-xl font-bold hover:bg-slate-800 transition-all flex items-center justify-center">
+                Technical Stack
+            </a>
+        </div>
+    </section>
+
+
+
+    <!-- Stats Section -->
+    <section class="py-10 px-6 max-w-6xl mx-auto">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="p-6 glass-card rounded-2xl text-center" data-aos="fade-up" data-aos-delay="200">
+                <div class="text-3xl font-bold mb-1">100M+</div>
+                <div class="text-xs text-slate-400 uppercase tracking-widest">Monthly Active Users</div>
+            </div>
+            <div class="p-6 glass-card rounded-2xl text-center" data-aos="fade-up" data-aos-delay="200">
+                <div class="text-3xl font-bold mb-1">30ms↓</div>
+                <div class="text-xs text-slate-400 uppercase tracking-widest">App Launch Time</div>
+            </div>
+            <div class="p-6 glass-card rounded-2xl text-center" data-aos="fade-up" data-aos-delay="200">
+                <div class="text-3xl font-bold mb-1">99.9%</div>
+                <div class="text-xs text-slate-400 uppercase tracking-widest">Crash-Free Sessions</div>
+            </div>
+            <div class="p-6 glass-card rounded-2xl text-center" data-aos="fade-up" data-aos-delay="200">
+                <div class="text-3xl font-bold mb-1">50%↓</div>
+                <div class="text-xs text-slate-400 uppercase tracking-widest">Build Time Optimization</div>
             </div>
         </div>
     </section>
 
-    <!-- 스킬 섹션 -->
-    <section id="skills">
-        <h2>Skills</h2>
-        <div class="skills-grid">
-            <div class="skill-card">
-                <h3>🎨 Frontend</h3>
-                <p>HTML, CSS, JavaScript<br>React, Vue.js</p>
-            </div>
-            <div class="skill-card">
-                <h3>⚙️ Backend</h3>
-                <p>Node.js, Python<br>Express, Django</p>
-            </div>
-            <div class="skill-card">
-                <h3>💾 Database</h3>
-                <p>MySQL, MongoDB<br>PostgreSQL</p>
-            </div>
-            <div class="skill-card">
-                <h3>🛠️ Tools</h3>
-                <p>Git, GitHub<br>VS Code, Figma</p>
-            </div>
-        </div>
-    </section>
+    <!-- Work Experience Section -->
+    <section id="experience" class="py-24 px-6 max-w-6xl mx-auto">
+        <h2 class="text-3xl font-bold mb-12 text-center" data-aos="fade-up" data-aos-delay="200">Professional Experience
+        </h2>
+        <div class="space-y-6">
+            <!-- Experience 1: Hanwha -->
+            <div class="accordion-item glass-card rounded-3xl cursor-pointer group active"
+                onclick="toggleAccordion(this)" data-aos="fade-up" data-aos-delay="400">
+                <div class="p-8 flex justify-between items-center">
+                    <div class="flex-1">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between mb-1">
+                            <h3 class="text-2xl font-bold text-white group-hover:text-indigo-400 transition-colors">
+                                Hanwha General Insurance</h3>
+                            <p class="text-slate-500 font-medium text-sm">Jul 2024 – Present</p>
+                        </div>
+                        <p class="text-indigo-400 font-semibold uppercase tracking-wider text-xs">iOS Engineer | Seoul,
+                            Korea</p>
+                    </div>
+                    <div class="ml-4 chevron-icon text-slate-500">
+                        <i data-lucide="chevron-down"></i>
+                    </div>
+                </div>
+                <div class="accordion-content px-8 pb-8">
+                    <div class="border-t border-white/5 pt-6">
+                        <!-- Key Responsibilities (Vertical Layout for readability) -->
+                        <div class="flex flex-col space-y-8 mb-10">
+                            <!-- Platform & Architecture Section -->
+                            <div>
+                                <h4 class="text-white font-bold mb-4 flex items-center text-lg">
+                                    <i data-lucide="server" class="w-5 h-5 mr-2 text-indigo-400"></i>
+                                    Platform & Architecture
+                                </h4>
+                                <ul class="space-y-3 text-slate-400 text-sm md:text-base ml-1">
+                                    <li class="flex items-start">
+                                        <span class="text-indigo-500 mr-3 mt-1">•</span>
+                                        <span><b>iOS Architecture:</b> Designed and maintained scalable iOS
+                                            architectures using
+                                            <b>VIPER</b> and <b>Clean Architecture</b> principles.</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-indigo-500 mr-3 mt-1">•</span>
+                                        <span><b>API Integration:</b> Built robust networking layers for consuming
+                                            RESTful APIs,
+                                            handling authentication, pagination, and error states.</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-indigo-500 mr-3 mt-1">•</span>
+                                        <span><b>Real-Time Data:</b> Implemented real-time state updates and
+                                            synchronization to ensure
+                                            accurate UI updates and consistent user experiences.</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-indigo-500 mr-3 mt-1">•</span>
+                                        <span><b>Code Quality:</b> Improved maintainability through modularization,
+                                            refactoring,
+                                            and unit testing with XCTest.</span>
+                                    </li>
+                                </ul>
+                            </div>
 
-    <!-- 프로젝트 섹션 -->
-    <section id="projects">
-        <h2>Projects</h2>
-        <div class="projects-grid">
-            <div class="project-card">
-                <div class="project-image">🌐</div>
-                <div class="project-info">
-                    <h3>프로젝트 1</h3>
-                    <p>프로젝트에 대한 간단한 설명을 여기에 작성하세요. 어떤 기술을 사용했고, 어떤 문제를 해결했는지 설명합니다.</p>
-                    <a href="#" class="project-link">자세히 보기</a>
+
+                            <!-- Real-time & State Management Section -->
+                            <div>
+                                <h4 class="text-white font-bold mb-4 flex items-center text-lg">
+                                    <i data-lucide="zap" class="w-5 h-5 mr-2 text-indigo-400"></i>
+                                    Real-time & State Management
+                                </h4>
+                                <ul class="space-y-3 text-slate-400 text-sm md:text-base ml-1">
+                                    <li class="flex items-start">
+                                        <span class="text-indigo-500 mr-3 mt-1">•</span>
+                                        <span><b>Live State Updates:</b> Implemented real-time UI updates for dynamic
+                                            application states such as
+                                            order status, timers, and progress indicators.</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-indigo-500 mr-3 mt-1">•</span>
+                                        <span><b>Data Synchronization:</b> Designed reliable client-side synchronization
+                                            to keep local state
+                                            consistent with backend responses.</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-indigo-500 mr-3 mt-1">•</span>
+                                        <span><b>Performance Monitoring:</b> Tracked runtime performance and crash
+                                            metrics to maintain high
+                                            stability in production environments.</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                        </div>
+
+                        <!-- Technical Architecture Diagram -->
+                        <div class="bg-slate-900/60 rounded-2xl p-6 border border-white/5 overflow-x-auto">
+                            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-8 text-center">
+                                Technical Architecture: iOS Application Architecture</h4>
+                            <pre class="mermaid">
+graph TD
+    subgraph UI [Presentation Layer]
+        direction TB
+        VC[ViewController / SwiftUI View]
+        VM[ViewModel]
+        VC --> VM
+    end
+
+    subgraph Domain [Business Logic]
+        direction TB
+        UC[Use Cases]
+        Model[Domain Models]
+        VM --> UC
+        UC --> Model
+    end
+
+    subgraph Data [Data Layer]
+        direction TB
+        API[API Client]
+        Repo[Repository]
+        Cache[Local Storage]
+        Repo --> API
+        Repo --> Cache
+    end
+
+    subgraph Services [Platform Services]
+        direction TB
+        Net[Networking]
+        Loc[CoreLocation]
+        Push[Push Notifications]
+        Net --- Loc
+        Net --- Push
+    end
+
+    API --> Net
+    Cache --> Repo
+
+    style UI fill:#1e293b,stroke:#475569,color:#fff
+    style Domain fill:#312e81,stroke:#818cf8,color:#fff
+    style Data fill:#0f172a,stroke:#4f46e5,color:#fff
+    style Services fill:#064e3b,stroke:#10b981,color:#fff
+    </pre>
+                            <p class="text-center text-xs text-slate-500 mt-6 italic">Visualization of the hybrid cloud
+                                data flow and transformation layers.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="project-card">
-                <div class="project-image">📱</div>
-                <div class="project-info">
-                    <h3>프로젝트 2</h3>
-                    <p>프로젝트에 대한 간단한 설명을 여기에 작성하세요. 어떤 기술을 사용했고, 어떤 문제를 해결했는지 설명합니다.</p>
-                    <a href="#" class="project-link">자세히 보기</a>
+
+            <!-- Experience 2: Carrot -->
+            <div class="accordion-item glass-card rounded-3xl cursor-pointer group" onclick="toggleAccordion(this)">
+                <div class="p-8 flex justify-between items-center">
+                    <div class="flex-1">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between mb-1">
+                            <h3 class="text-2xl font-bold text-white group-hover:text-emerald-400 transition-colors">
+                                Carrot Insurance</h3>
+                            <p class="text-slate-500 font-medium text-sm">Nov 2021 – Jan 2026</p>
+                        </div>
+                        <p class="text-emerald-400 font-semibold uppercase tracking-wider text-xs">iOS Developer |
+                            Seoul, Korea</p>
+                    </div>
+                    <div class="ml-4 chevron-icon text-slate-500">
+                        <i data-lucide="chevron-down"></i>
+                    </div>
                 </div>
-            </div>
-            <div class="project-card">
-                <div class="project-image">💼</div>
-                <div class="project-info">
-                    <h3>프로젝트 3</h3>
-                    <p>프로젝트에 대한 간단한 설명을 여기에 작성하세요. 어떤 기술을 사용했고, 어떤 문제를 해결했는지 설명합니다.</p>
-                    <a href="#" class="project-link">자세히 보기</a>
+                <div class="accordion-content px-8 pb-8">
+                    <div class="border-t border-white/5 pt-6">
+                        <ul class="space-y-3 text-slate-400 list-disc list-inside text-sm md:text-base">
+                            <li><b>Feature Development:</b> Designed and implemented user-facing iOS features using
+                                Swift and UIKit,
+                                focusing on reliability and usability.</li>
+                            <li><b>Performance Optimization:</b> Improved app performance and responsiveness through
+                                refactoring and
+                                optimization, reducing screen load time and improving runtime stability.</li>
+                            <li><b>API Integration:</b> Integrated RESTful APIs and implemented robust networking layers
+                                for real-time
+                                data synchronization.</li>
+                        </ul>
+                    </div>
                 </div>
+
             </div>
         </div>
     </section>
 
-    <!-- 연락처 섹션 -->
-    <section id="contact">
-        <h2>Contact</h2>
-        <div class="contact-info">
-            <p>프로젝트 문의나 협업 제안은 언제든지 환영합니다!</p>
-            <div class="contact-links">
-                <a href="mailto:your-email@example.com" class="contact-btn">📧 Email</a>
-                <a href="https://github.com/yourusername" class="contact-btn" target="_blank">💻 GitHub</a>
-                <a href="https://linkedin.com/in/yourusername" class="contact-btn" target="_blank">💼 LinkedIn</a>
+    <!-- Skills Section -->
+    <section id="skills" class="py-24 bg-slate-900/50">
+        <div class="max-w-6xl mx-auto px-6">
+            <h2 class="text-3xl font-bold mb-12 text-center text-white">Technical Skills</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+
+                <div class="p-6 glass-card rounded-2xl border-t-2 border-indigo-500 bg-slate-800/40">
+                    <h4 class="text-lg font-bold mb-4 text-white">iOS Core</h4>
+                    <ul class="text-slate-400 space-y-2 text-sm">
+                        <li>Swift (Modern Concurrency)</li>
+                        <li>SwiftUI & UIKit (Hybrid)</li>
+                        <li>Combine / RxSwift</li>
+                        <li>Memory Management (ARC)</li>
+                        <li>App Lifecycle & Sandboxing</li>
+                    </ul>
+                </div>
+
+                <div class="p-6 glass-card rounded-2xl border-t-2 border-purple-500 bg-slate-800/40">
+                    <h4 class="text-lg font-bold mb-4 text-white">Architecture</h4>
+                    <ul class="text-slate-400 space-y-2 text-sm">
+                        <li>MVVM, VIPER, Clean Architecture</li>
+                        <li>Coordinator Pattern</li>
+                        <li>Dependency Injection (Swinject)</li>
+                        <li>Modular Architecture</li>
+                        <li>Design Patterns (Observer, Factory)</li>
+                    </ul>
+                </div>
+
+                <div class="p-6 glass-card rounded-2xl border-t-2 border-emerald-500 bg-slate-800/40">
+                    <h4 class="text-lg font-bold mb-4 text-white">Data & Network</h4>
+                    <ul class="text-slate-400 space-y-2 text-sm">
+                        <li>RESTful API (Alamofire)</li>
+                        <li>CoreData / Realm / SQLite</li>
+                        <li>Local Caching Strategy</li>
+                        <li>Protocol Buffer / JSON</li>
+                        <li>Image Caching (Kingfisher)</li>
+                    </ul>
+                </div>
+
+                <div class="p-6 glass-card rounded-2xl border-t-2 border-orange-500 bg-slate-800/40">
+                    <h4 class="text-lg font-bold mb-4 text-white">DevOps & Quality</h4>
+                    <ul class="text-slate-400 space-y-2 text-sm">
+                        <li>Unit & UI Testing (XCTest)</li>
+                        <li>CI/CD (Fastlane, GitHub Actions)</li>
+                        <li>Instruments (Memory Leak, Time)</li>
+                        <li>SPM / CocoaPods</li>
+                        <li>Git Flow / Code Review</li>
+                    </ul>
+                </div>
+
             </div>
         </div>
     </section>
 
-    <!-- 푸터 -->
-    <footer>
-        <p>&copy; 2024 홍길동. All rights reserved.</p>
+    <!-- Footer -->
+    <footer class="py-12 border-t border-white/5 text-center text-slate-500 text-sm">
+        <p>© 2026 Sujin Lee. iOS Engineer Portfolio.</p>
+        <p class="mt-2 text-xs uppercase tracking-widest">Scalable Data Architecture Specialist</p>
     </footer>
 
     <script>
-        // 부드러운 스크롤
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'dark',
+            fontFamily: 'Inter',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+
+        // Run mermaid on load
+        window.addEventListener('load', () => {
+            mermaid.run();
+        });
+
+        // Accordion Toggle Function
+        function toggleAccordion(element) {
+            const allItems = document.querySelectorAll('.accordion-item');
+            const isActive = element.classList.contains('active');
+
+            allItems.forEach(item => {
+                item.classList.remove('active');
             });
+
+            if (!isActive) {
+                element.classList.add('active');
+                // Re-run mermaid after animation finishes
+                setTimeout(() => {
+                    mermaid.run({
+                        nodes: element.querySelectorAll('.mermaid')
+                    });
+                }, 400);
+            }
+        }
+        function toggleModal() {
+            const modal = document.getElementById('resumeModal');
+            if (!modal) return;
+
+            const isHidden = modal.classList.contains('hidden');
+
+            if (isHidden) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+
+                // 아이콘이 안 보일 때를 대비해 모달이 열리는 순간 다시 생성 명령을 내립니다.
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            } else {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // 페이지 로드 시에도 한 번 실행되도록 추가
+        window.addEventListener('load', () => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         });
     </script>
+    <div id="resumeModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onclick="toggleModal()"></div>
+
+        <div
+            class="glass-card w-full max-w-5xl h-[90vh] rounded-3xl overflow-hidden relative z-10 flex flex-col border border-white/10">
+            <div class="p-4 border-b border-white/5 flex justify-between items-center bg-slate-900/50">
+                <h3 class="text-white font-bold ml-2 text-sm">SUJINLEE_Portfolio.pdf</h3>
+                <div class="flex items-center space-x-2">
+                    <a href="https://github.com/svng-zu/MyPortFolio/raw/main/Resume.pdf" target="_blank"
+                        class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center min-w-[130px]">
+                        <i data-lucide="download" class="w-4 h-4 mr-2 block"></i>
+                        <span class="leading-none">Download</span>
+                    </a>
+                    <button onclick="toggleModal()" class="p-2 text-slate-400 hover:text-white transition-colors">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex-1 bg-white">
+                <iframe
+                    src="https://docs.google.com/viewer?url=https://github.com/svng-zu/MyPortFolio/raw/main/Resume.pdf&embedded=true"
+                    class="w-full h-full border-none">
+                </iframe>
+            </div>
+        </div>
+    </div>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script> 
+        AOS.init({
+            duration: 1000,
+            once: false,
+            offset: 120,
+        }); 
+        lucide.createIcons();
+    </script>
 </body>
+
 </html>

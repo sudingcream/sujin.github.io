@@ -17,7 +17,7 @@ address : https://svng-zu.github.io/MyPortFolio/
 
 ---
 
-## 🌐 Language Select (언어 선택)
+## 🌐 Language Select 
 
 <details open>
 <summary><b>🇰🇷 한국어 버전 (클릭하여 접기)</b></summary>
